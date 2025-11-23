@@ -1,78 +1,79 @@
 {% extends "base.html" %}
 {% block title %}Nuevo Paciente{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
-        </div>
-    </nav>
-    
-    <div class="page-header">
-        <div>
-            <a href="/admisionista/pacientes" style="color: #4fc3f7; text-decoration: none;">← Volver a Pacientes</a>
-            <h2 style="margin-top: 10px;">Registrar Nuevo Paciente</h2>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
     </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="/admisionista/pacientes" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Volver a Pacientes</a>
+        <h2 class="mt-2"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Paciente</h2>
+    </div>
     
-    <div id="alert" class="alert" style="display: none;"></div>
+    <div id="alert" class="alert d-none" role="alert"></div>
     
-    <div class="table-container">
-        <form id="formNuevoPaciente">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="form-group">
-                    <label>Nombres *</label>
-                    <input type="text" id="nombres" required>
-                </div>
-                <div class="form-group">
-                    <label>Apellidos *</label>
-                    <input type="text" id="apellidos" required>
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Documento *</label>
-                    <select id="tipo_documento_id" required>
+    <div class="card">
+        <div class="card-body">
+            <form id="formNuevoPaciente">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres *</label>
+                        <input type="text" class="form-control" id="nombres" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos *</label>
+                        <input type="text" class="form-control" id="apellidos" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de Documento *</label>
+                        <select class="form-select" id="tipo_documento_id" required>
                         {% for td in tipos_documento %}
                         <option value="{{ td.id }}">{{ td.nombre }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Número de Documento *</label>
-                    <input type="text" id="numero_documento" required>
+                <div class="mb-3">
+                    <label class="form-label">Número de Documento *</label>
+                    <input type="text" class="form-control" id="numero_documento" required>
                 </div>
-                <div class="form-group">
-                    <label>Fecha de Nacimiento *</label>
-                    <input type="date" id="fecha_nacimiento" required>
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Nacimiento *</label>
+                    <input type="date" class="form-control" id="fecha_nacimiento" required>
                 </div>
-                <div class="form-group">
-                    <label>Género *</label>
-                    <select id="genero" required>
+                <div class="mb-3">
+                    <label class="form-label">Género *</label>
+                    <select class="form-select" id="genero" required>
                         <option value="Masculino">Masculino</option>
                         <option value="Femenino">Femenino</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" id="telefono">
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" class="form-control" id="telefono">
                 </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="email">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email">
                 </div>
-                <div class="form-group">
-                    <label>Sede de Registro *</label>
-                    <select id="sede_registro_id" required>
+                <div class="mb-3">
+                    <label class="form-label">Sede de Registro *</label>
+                    <select class="form-select" id="sede_registro_id" required>
                         {% for s in sedes %}
                         <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Contraseña *</label>
-                    <input type="password" id="password" required>
-                    <small style="color: #b0bec5;">El paciente usará esta contraseña para acceder al sistema</small>
+                <div class="mb-3">
+                    <label class="form-label">Contraseña *</label>
+                    <input type="password" class="form-control" id="password" required>
+                    <small class="text-muted">El paciente usará esta contraseña para acceder al sistema</small>
                 </div>
             </div>
             
@@ -128,7 +129,7 @@ function mostrarAlerta(mensaje, tipo) {
     const alert = document.getElementById('alert');
     alert.className = `alert alert-${tipo}`;
     alert.textContent = mensaje;
-    alert.style.display = 'block';
+    alert.classList.remove('d-none');
     window.scrollTo(0, 0);
 }
 </script>

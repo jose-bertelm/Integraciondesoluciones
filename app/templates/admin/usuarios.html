@@ -1,27 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Gestión de Usuarios{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
-    
-    <div class="page-header">
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
-            <h2 style="margin-top: 10px;">Gestión de Usuarios</h2>
+            <a href="/dashboard" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Volver al Dashboard</a>
+            <h2 class="mt-2"><i class="bi bi-people-fill"></i> Gestión de Usuarios</h2>
         </div>
-        <button class="btn btn-success" onclick="abrirModal()">+ Nuevo Usuario</button>
+        <button class="btn btn-success" onclick="abrirModal()"><i class="bi bi-plus-lg"></i> Nuevo Usuario</button>
     </div>
     
-    <div id="alert" class="alert" style="display: none;"></div>
+    <div id="alert" class="alert d-none" role="alert"></div>
     
-    <div class="table-container">
-        <table>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -56,77 +60,82 @@
                 </tr>
                 {% endfor %}
             </tbody>
-        </table>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Modal Usuario -->
-<div id="modalUsuario" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitulo">Nuevo Usuario</h3>
-            <button class="modal-close" onclick="cerrarModal()">&times;</button>
-        </div>
-        <form id="formUsuario">
-            <input type="hidden" id="usuarioId">
-            <div class="form-group">
-                <label>Nombres</label>
-                <input type="text" id="nombres" required>
+<div class="modal fade" id="modalUsuario" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo">Nuevo Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" onclick="cerrarModal()"></button>
             </div>
-            <div class="form-group">
-                <label>Apellidos</label>
-                <input type="text" id="apellidos" required>
-            </div>
-            <div class="form-group">
-                <label>Tipo de Documento</label>
-                <select id="tipo_documento_id" required>
+            <div class="modal-body">
+                <form id="formUsuario">
+                    <input type="hidden" id="usuarioId">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombres</label>
+                            <input type="text" class="form-control" id="nombres" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Apellidos</label>
+                            <input type="text" class="form-control" id="apellidos" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo de Documento</label>
+                            <select class="form-select" id="tipo_documento_id" required>
                     {% for td in tipos_documento %}
                     <option value="{{ td.id }}">{{ td.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
-                <label>Número de Documento</label>
-                <input type="text" id="numero_documento" required>
+            <div class="mb-3">
+                <label class="form-label">Número de Documento</label>
+                <input type="text" class="form-control" id="numero_documento" required>
             </div>
-            <div class="form-group">
-                <label>Fecha de Nacimiento</label>
-                <input type="date" id="fecha_nacimiento" required>
+            <div class="mb-3">
+                <label class="form-label">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" id="fecha_nacimiento" required>
             </div>
-            <div class="form-group">
-                <label>Género</label>
-                <select id="genero" required>
+            <div class="mb-3">
+                <label class="form-label">Género</label>
+                <select class="form-select" id="genero" required>
                     <option value="Masculino">Masculino</option>
                     <option value="Femenino">Femenino</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Teléfono</label>
-                <input type="text" id="telefono">
+            <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="telefono">
             </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="email">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email">
             </div>
-            <div class="form-group">
-                <label>Sede</label>
-                <select id="sede_registro_id" required>
+            <div class="mb-3">
+                <label class="form-label">Sede</label>
+                <select class="form-select" id="sede_registro_id" required>
                     {% for s in sedes %}
                     <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
-                <label>Rol</label>
-                <select id="rol_id" required>
+            <div class="mb-3">
+                <label class="form-label">Rol</label>
+                <select class="form-select" id="rol_id" required>
                     {% for r in roles %}
                     <option value="{{ r.id }}">{{ r.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group" id="passwordGroup">
-                <label>Contraseña</label>
-                <input type="password" id="password">
+            <div class="mb-3" id="passwordGroup">
+                <label class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password">
             </div>
             <button type="submit" class="btn btn-primary">Guardar</button>
         </form>
@@ -141,7 +150,7 @@
             <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
         </div>
         <p style="margin-bottom: 20px;">¿Está seguro que desea eliminar permanentemente al usuario <strong id="nombreEliminar"></strong>?</p>
-        <p style="color: #ef5350; margin-bottom: 20px;">Esta acción no se puede deshacer y eliminará el registro de HAPI FHIR.</p>
+        <p class="text-danger mb-3">Esta acción no se puede deshacer y eliminará el registro de HAPI FHIR.</p>
         <input type="hidden" id="eliminarUsuarioId">
         <div style="display: flex; gap: 10px;">
             <button class="btn btn-secondary" onclick="cerrarModalEliminar()" style="flex: 1;">Cancelar</button>
@@ -171,12 +180,14 @@
     font-weight: bold;
 }
 .estado-activo {
-    background: rgba(102, 187, 106, 0.2);
-    color: #66bb6a;
+    background: #d1fae5;
+    color: #10b981;
+    border: 1px solid #10b981;
 }
 .estado-inactivo {
-    background: rgba(239, 83, 80, 0.2);
-    color: #ef5350;
+    background: #fee2e2;
+    color: #ef4444;
+    border: 1px solid #ef4444;
 }
 </style>
 {% endblock %}
@@ -184,6 +195,7 @@
 {% block scripts %}
 <script>
 let editando = false;
+const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
 
 function abrirModal() {
     editando = false;
@@ -193,15 +205,15 @@ function abrirModal() {
     document.getElementById('passwordGroup').style.display = 'block';
     document.getElementById('password').required = true;
     document.getElementById('numero_documento').disabled = false;
-    document.getElementById('modalUsuario').classList.add('active');
+    modalUsuario.show();
 }
 
 function cerrarModal() {
-    document.getElementById('modalUsuario').classList.remove('active');
+    modalUsuario.hide();
 }
 
 function cerrarModalEliminar() {
-    document.getElementById('modalEliminar').classList.remove('active');
+    modalEliminar.hide();
 }
 
 async function editarUsuario(id) {
@@ -225,7 +237,7 @@ async function editarUsuario(id) {
     document.getElementById('passwordGroup').style.display = 'none';
     document.getElementById('password').required = false;
     
-    document.getElementById('modalUsuario').classList.add('active');
+    modalUsuario.show();
 }
 
 async function toggleEstado(id, estadoActual) {
@@ -308,8 +320,8 @@ function mostrarAlerta(mensaje, tipo) {
     const alert = document.getElementById('alert');
     alert.className = `alert alert-${tipo}`;
     alert.textContent = mensaje;
-    alert.style.display = 'block';
-    setTimeout(() => alert.style.display = 'none', 3000);
+    alert.classList.remove('d-none');
+    setTimeout(() => alert.classList.add('d-none'), 3000);
 }
 </script>
 {% endblock %}
