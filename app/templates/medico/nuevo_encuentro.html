@@ -1,29 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Nuevo Encuentro Médico{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👨‍⚕️ Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
-        </div>
-    </nav>
-    
-    <div class="page-header">
-        <div>
-            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
-            <h2 style="margin-top: 10px;">Registrar Encuentro Médico</h2>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-heart-pulse"></i> Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
     </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="/dashboard" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Volver al Dashboard</a>
+        <h2 class="mt-2"><i class="bi bi-file-medical-fill"></i> Registrar Encuentro Médico</h2>
+    </div>
     
-    <div id="alert" class="alert" style="display: none;"></div>
+    <div id="alert" class="alert d-none" role="alert"></div>
     
-    <div class="table-container">
-        <form id="formEncuentro">
-            <div class="form-group">
-                <label>Paciente</label>
-                <select id="paciente_id" required>
+    <div class="card">
+        <div class="card-body">
+            <form id="formEncuentro">
+                <div class="mb-3">
+                    <label class="form-label">Paciente</label>
+                    <select class="form-select" id="paciente_id" required>
                     <option value="">Seleccione un paciente</option>
                     {% for p in pacientes %}
                     <option value="{{ p.id }}">{{ p.nombres }} {{ p.apellidos }} - {{ p.numero_documento }}</option>
@@ -31,41 +32,41 @@
                 </select>
             </div>
             
-            <div class="form-group">
-                <label>Tipo de Encuentro</label>
-                <select id="tipo_id" required>
+            <div class="mb-3">
+                <label class="form-label">Tipo de Encuentro</label>
+                <select class="form-select" id="tipo_id" required>
                     {% for t in tipos_encuentro %}
                     <option value="{{ t.id }}">{{ t.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
             
-            <div class="form-group">
-                <label>Sede</label>
-                <select id="sede_id" required>
+            <div class="mb-3">
+                <label class="form-label">Sede</label>
+                <select class="form-select" id="sede_id" required>
                     {% for s in sedes %}
                     <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
                     {% endfor %}
                 </select>
             </div>
             
-            <div class="form-group">
-                <label>Diagnóstico</label>
-                <textarea id="diagnostico" rows="3" placeholder="Describa el diagnóstico"></textarea>
+            <div class="mb-3">
+                <label class="form-label">Diagnóstico</label>
+                <textarea class="form-control" id="diagnostico" rows="3" placeholder="Describa el diagnóstico"></textarea>
             </div>
             
-            <div class="form-group">
-                <label>Código ICD-10 (opcional)</label>
-                <input type="text" id="diagnostico_codigo_icd10" placeholder="Ej: J00, A09">
+            <div class="mb-3">
+                <label class="form-label">Código ICD-10 (opcional)</label>
+                <input type="text" class="form-control" id="diagnostico_codigo_icd10" placeholder="Ej: J00, A09">
             </div>
             
-            <div class="form-group">
-                <label>Código SNOMED CT (opcional)</label>
-                <input type="text" id="diagnostico_codigo_snomed" placeholder="Ej: 386661006">
+            <div class="mb-3">
+                <label class="form-label">Código SNOMED CT (opcional)</label>
+                <input type="text" class="form-control" id="diagnostico_codigo_snomed" placeholder="Ej: 386661006">
             </div>
             
             <div class="observaciones-container">
-                <h3 style="color: #4fc3f7; margin-bottom: 15px;">Observaciones Clínicas</h3>
+                <h5 class="text-primary"><i class="bi bi-activity"></i> Observaciones Clínicas</h5>
                 <div id="observacionesList"></div>
                 <button type="button" class="btn btn-secondary" onclick="agregarObservacion()">+ Agregar Observación</button>
             </div>
@@ -88,25 +89,25 @@ function agregarObservacion() {
     div.className = 'observacion-form';
     div.id = `obs_${obsCount}`;
     div.innerHTML = `
-        <div class="form-group">
-            <label>Descripción</label>
-            <input type="text" class="obs-descripcion" required placeholder="Ej: Presión arterial, Temperatura">
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <input type="text" class="form-control obs-descripcion" required placeholder="Ej: Presión arterial, Temperatura">
         </div>
-        <div class="form-group">
-            <label>Valor</label>
-            <input type="text" class="obs-valor" placeholder="Ej: 120/80, 37.5">
+        <div class="mb-3">
+            <label class="form-label">Valor</label>
+            <input type="text" class="form-control obs-valor" placeholder="Ej: 120/80, 37.5">
         </div>
-        <div class="form-group">
-            <label>Unidad</label>
-            <input type="text" class="obs-unidad" placeholder="Ej: mmHg, °C, mg/dL">
+        <div class="mb-3">
+            <label class="form-label">Unidad</label>
+            <input type="text" class="form-control obs-unidad" placeholder="Ej: mmHg, °C, mg/dL">
         </div>
-        <div class="form-group">
-            <label>Código LOINC (opcional)</label>
-            <input type="text" class="obs-loinc" placeholder="Ej: 8480-6">
+        <div class="mb-3">
+            <label class="form-label">Código LOINC (opcional)</label>
+            <input type="text" class="form-control obs-loinc" placeholder="Ej: 8480-6">
         </div>
-        <div class="form-group">
-            <label>Interpretación</label>
-            <select class="obs-interpretacion">
+        <div class="mb-3">
+            <label class="form-label">Interpretación</label>
+            <select class="form-select obs-interpretacion">
                 <option value="">Seleccione</option>
                 <option value="Normal">Normal</option>
                 <option value="Anormal">Anormal</option>
@@ -115,7 +116,7 @@ function agregarObservacion() {
                 <option value="Crítico">Crítico</option>
             </select>
         </div>
-        <button type="button" class="remove-obs" onclick="eliminarObservacion(${obsCount})">Eliminar</button>
+        <button type="button" class="btn btn-danger btn-sm remove-obs" onclick="eliminarObservacion(${obsCount})">Eliminar</button>
     `;
     container.appendChild(div);
     obsCount++;
@@ -176,7 +177,7 @@ function mostrarAlerta(mensaje, tipo) {
     const alert = document.getElementById('alert');
     alert.className = `alert alert-${tipo}`;
     alert.textContent = mensaje;
-    alert.style.display = 'block';
+    alert.classList.remove('d-none');
     window.scrollTo(0, 0);
 }
 </script>

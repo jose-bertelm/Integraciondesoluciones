@@ -1,36 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Gestión de Pacientes{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
-    
-    <div class="page-header">
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
-            <h2 style="margin-top: 10px;">Gestión de Pacientes</h2>
+            <a href="/dashboard" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Volver al Dashboard</a>
+            <h2 class="mt-2"><i class="bi bi-people-fill"></i> Gestión de Pacientes</h2>
         </div>
-        <a href="/admisionista/nuevo-paciente" class="btn btn-success">+ Nuevo Paciente</a>
+        <a href="/admisionista/nuevo-paciente" class="btn btn-success"><i class="bi bi-plus-lg"></i> Nuevo Paciente</a>
     </div>
     
     <!-- Búsqueda -->
-    <div class="table-container" style="margin-bottom: 20px; padding: 20px;">
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <input type="text" id="busqueda" placeholder="Buscar por documento o nombre..." style="flex: 1; padding: 12px 15px; border: none; border-radius: 10px; background: rgba(255,255,255,0.1); color: #fff;">
-            <button class="btn btn-primary" onclick="buscar()">🔍 Buscar</button>
-            <button class="btn btn-secondary" onclick="limpiarBusqueda()">Limpiar</button>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-center">
+                <div class="col">
+                    <input type="text" class="form-control" id="busqueda" placeholder="Buscar por documento o nombre...">
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" onclick="buscar()"><i class="bi bi-search"></i> Buscar</button>
+                    <button class="btn btn-secondary" onclick="limpiarBusqueda()">Limpiar</button>
+                </div>
+            </div>
         </div>
     </div>
     
-    <div id="alert" class="alert" style="display: none;"></div>
+    <div id="alert" class="alert d-none" role="alert"></div>
     
-    <div class="table-container">
-        <table>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
             <thead>
                 <tr>
                     <th>Documento</th>
@@ -51,9 +61,9 @@
                     <td>{{ p.telefono or 'No registrado' }}</td>
                     <td>
                         {% if p.fhir_patient_id %}
-                        <span style="color: #4fc3f7;">{{ p.fhir_patient_id }}</span>
+                        <span class="text-primary">{{ p.fhir_patient_id }}</span>
                         {% else %}
-                        <span style="color: #ef5350;">No sincronizado</span>
+                        <span class="text-danger">No sincronizado</span>
                         {% endif %}
                     </td>
                     <td>
@@ -70,7 +80,7 @@
                 {% endfor %}
                 {% if not pacientes %}
                 <tr>
-                    <td colspan="7" style="text-align: center; color: #b0bec5;">No hay pacientes registrados</td>
+                    <td colspan="7" class="text-center text-muted">No hay pacientes registrados</td>
                 </tr>
                 {% endif %}
             </tbody>
@@ -87,48 +97,48 @@
         </div>
         <form id="formPaciente">
             <input type="hidden" id="pacienteId">
-            <div class="form-group">
-                <label>Nombres</label>
-                <input type="text" id="nombres" required>
+            <div class="mb-3">
+                <label class="form-label">Nombres</label>
+                <input type="text" class="form-control" id="nombres" required>
             </div>
-            <div class="form-group">
-                <label>Apellidos</label>
-                <input type="text" id="apellidos" required>
+            <div class="mb-3">
+                <label class="form-label">Apellidos</label>
+                <input type="text" class="form-control" id="apellidos" required>
             </div>
-            <div class="form-group">
-                <label>Tipo de Documento</label>
-                <select id="tipo_documento_id" required>
+            <div class="mb-3">
+                <label class="form-label">Tipo de Documento</label>
+                <select class="form-select" id="tipo_documento_id" required>
                     {% for td in tipos_documento %}
                     <option value="{{ td.id }}">{{ td.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
-                <label>Número de Documento</label>
-                <input type="text" id="numero_documento" disabled>
+            <div class="mb-3">
+                <label class="form-label">Número de Documento</label>
+                <input type="text" class="form-control" id="numero_documento" disabled>
             </div>
-            <div class="form-group">
-                <label>Fecha de Nacimiento</label>
-                <input type="date" id="fecha_nacimiento" required>
+            <div class="mb-3">
+                <label class="form-label">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" id="fecha_nacimiento" required>
             </div>
-            <div class="form-group">
-                <label>Género</label>
-                <select id="genero" required>
+            <div class="mb-3">
+                <label class="form-label">Género</label>
+                <select class="form-select" id="genero" required>
                     <option value="Masculino">Masculino</option>
                     <option value="Femenino">Femenino</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Teléfono</label>
-                <input type="text" id="telefono">
+            <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="telefono">
             </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="email">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email">
             </div>
-            <div class="form-group">
-                <label>Sede</label>
-                <select id="sede_registro_id" required>
+            <div class="mb-3">
+                <label class="form-label">Sede</label>
+                <select class="form-select" id="sede_registro_id" required>
                     {% for s in sedes %}
                     <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
                     {% endfor %}
@@ -167,9 +177,9 @@ function buscar() {
         const nombre = fila.dataset.nombre.toLowerCase();
         
         if (documento.includes(termino) || nombre.includes(termino)) {
-            fila.style.display = '';
+            fila.classList.remove('d-none');
         } else {
-            fila.style.display = 'none';
+            fila.classList.add('d-none');
         }
     });
 }
@@ -177,7 +187,7 @@ function buscar() {
 function limpiarBusqueda() {
     document.getElementById('busqueda').value = '';
     document.querySelectorAll('.fila-paciente').forEach(fila => {
-        fila.style.display = '';
+        fila.classList.remove('d-none');
     });
 }
 
@@ -246,8 +256,8 @@ function mostrarAlerta(mensaje, tipo) {
     const alert = document.getElementById('alert');
     alert.className = `alert alert-${tipo}`;
     alert.textContent = mensaje;
-    alert.style.display = 'block';
-    setTimeout(() => alert.style.display = 'none', 3000);
+    alert.classList.remove('d-none');
+    setTimeout(() => alert.classList.add('d-none'), 3000);
 }
 </script>
 {% endblock %}
