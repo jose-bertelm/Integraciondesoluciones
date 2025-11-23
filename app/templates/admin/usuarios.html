@@ -89,56 +89,59 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Tipo de Documento</label>
                             <select class="form-select" id="tipo_documento_id" required>
-                    {% for td in tipos_documento %}
-                    <option value="{{ td.id }}">{{ td.nombre }}</option>
-                    {% endfor %}
-                </select>
+                                {% for td in tipos_documento %}
+                                <option value="{{ td.id }}">{{ td.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Número de Documento</label>
+                            <input type="text" class="form-control" id="numero_documento" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="fecha_nacimiento" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Género</label>
+                            <select class="form-select" id="genero" required>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="telefono">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sede</label>
+                            <select class="form-select" id="sede_registro_id" required>
+                                {% for s in sedes %}
+                                <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select" id="rol_id" required>
+                                {% for r in roles %}
+                                <option value="{{ r.id }}">{{ r.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3" id="passwordGroup">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Número de Documento</label>
-                <input type="text" class="form-control" id="numero_documento" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Fecha de Nacimiento</label>
-                <input type="date" class="form-control" id="fecha_nacimiento" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Género</label>
-                <select class="form-select" id="genero" required>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Teléfono</label>
-                <input type="text" class="form-control" id="telefono">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" id="email">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Sede</label>
-                <select class="form-select" id="sede_registro_id" required>
-                    {% for s in sedes %}
-                    <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Rol</label>
-                <select class="form-select" id="rol_id" required>
-                    {% for r in roles %}
-                    <option value="{{ r.id }}">{{ r.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3" id="passwordGroup">
-                <label class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password">
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-        </form>
+        </div>
     </div>
 </div>
 
