@@ -1,53 +1,62 @@
 {% extends "base.html" %}
 {% block title %}Mis Consultas{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👨‍⚕️ Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-heart-pulse"></i> Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
-    
-    <div class="page-header">
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
-            <h2 style="margin-top: 10px;">Mis Consultas Realizadas</h2>
+            <a href="/dashboard" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Volver al Dashboard</a>
+            <h2 class="mt-2"><i class="bi bi-journal-medical"></i> Mis Consultas Realizadas</h2>
         </div>
-        <a href="/medico/nuevo-encuentro" class="btn btn-success">+ Nuevo Encuentro</a>
+        <a href="/medico/nuevo-encuentro" class="btn btn-success"><i class="bi bi-plus-lg"></i> Nuevo Encuentro</a>
     </div>
     
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Paciente</th>
-                    <th>Tipo</th>
-                    <th>Sede</th>
-                    <th>Diagnóstico</th>
-                    <th>FHIR ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for e in encuentros %}
-                <tr>
-                    <td>{{ e.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
-                    <td>{{ e.paciente.nombres }} {{ e.paciente.apellidos }}</td>
-                    <td>{{ e.tipo.nombre if e.tipo else 'N/A' }}</td>
-                    <td>{{ e.sede.nombre if e.sede else 'N/A' }}</td>
-                    <td>{{ e.diagnostico[:50] + '...' if e.diagnostico and e.diagnostico|length > 50 else e.diagnostico or 'Sin diagnóstico' }}</td>
-                    <td>{{ e.fhir_encounter_id or 'No sincronizado' }}</td>
-                </tr>
-                {% endfor %}
-                {% if not encuentros %}
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #b0bec5;">No hay consultas registradas</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Paciente</th>
+                            <th>Tipo</th>
+                            <th>Sede</th>
+                            <th>Diagnóstico</th>
+                            <th>FHIR ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in encuentros %}
+                        <tr>
+                            <td>{{ e.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ e.paciente.nombres }} {{ e.paciente.apellidos }}</td>
+                            <td><span class="badge bg-primary">{{ e.tipo.nombre if e.tipo else 'N/A' }}</span></td>
+                            <td>{{ e.sede.nombre if e.sede else 'N/A' }}</td>
+                            <td>{{ e.diagnostico[:50] + '...' if e.diagnostico and e.diagnostico|length > 50 else e.diagnostico or 'Sin diagnóstico' }}</td>
+                            <td><small class="text-muted">{{ e.fhir_encounter_id or 'No sincronizado' }}</small></td>
+                        </tr>
+                        {% endfor %}
+                        {% if not encuentros %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                No hay consultas registradas
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

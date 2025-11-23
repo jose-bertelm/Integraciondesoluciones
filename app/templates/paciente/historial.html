@@ -1,92 +1,105 @@
 {% extends "base.html" %}
 {% block title %}Mi Historial Médico{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
-    
-    <div class="page-header">
-        <div>
-            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
-            <h2 style="margin-top: 10px;">Mi Historial Médico</h2>
-        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="/dashboard" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Volver al Dashboard</a>
+        <h2 class="mt-2"><i class="bi bi-clipboard2-pulse-fill"></i> Mi Historial Médico</h2>
     </div>
     
     {% if encuentros %}
         {% for e in encuentros %}
-        <div class="historial-item">
-            <div class="historial-header">
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="card-title text-primary">
+                            <i class="bi bi-calendar-event"></i> {{ e.fecha.strftime('%d/%m/%Y %H:%M') }}
+                        </h5>
+                        <p class="text-muted mb-0"><i class="bi bi-bookmark-fill"></i> {{ e.tipo.nombre if e.tipo else 'Consulta' }}</p>
+                    </div>
+                    <span class="badge bg-info text-white">
+                        <i class="bi bi-building"></i> {{ e.sede.nombre if e.sede else 'N/A' }}
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <strong class="text-primary"><i class="bi bi-person-badge"></i> Médico:</strong> 
+                    <span>Dr(a). {{ e.medico.nombres }} {{ e.medico.apellidos }}</span>
+                </div>
+                
+                {% if e.diagnostico %}
+                <div class="mb-3">
+                    <strong class="text-primary"><i class="bi bi-clipboard-pulse"></i> Diagnóstico:</strong>
+                    <p class="mt-2 mb-1">{{ e.diagnostico }}</p>
+                    {% if e.diagnostico_codigo_icd10 %}
+                    <small class="text-muted">Código ICD-10: <span class="badge bg-secondary">{{ e.diagnostico_codigo_icd10 }}</span></small>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if e.observaciones %}
                 <div>
-                    <span class="historial-date">📅 {{ e.fecha.strftime('%d/%m/%Y %H:%M') }}</span>
-                    <span style="margin-left: 15px; color: #b0bec5;">{{ e.tipo.nombre if e.tipo else 'Consulta' }}</span>
+                    <strong class="text-primary"><i class="bi bi-activity"></i> Observaciones Clínicas:</strong>
+                    <div class="row g-3 mt-2">
+                        {% for obs in e.observaciones %}
+                        <div class="col-md-6">
+                            <div class="card bg-dark border-secondary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>{{ obs.descripcion }}</strong>
+                                        <small class="text-muted">{{ obs.fecha.strftime('%d/%m/%Y %H:%M') }}</small>
+                                    </div>
+                                    {% if obs.valor %}
+                                    <p class="mb-1">
+                                        <span class="text-primary">Valor:</span> {{ obs.valor }} {{ obs.unidad or '' }}
+                                    </p>
+                                    {% endif %}
+                                    {% if obs.interpretacion %}
+                                    <p class="mb-1">
+                                        <span class="text-primary">Interpretación:</span> 
+                                        <span class="badge {{ 'bg-success' if obs.interpretacion == 'Normal' else 'bg-danger' }}">
+                                            {{ obs.interpretacion }}
+                                        </span>
+                                    </p>
+                                    {% endif %}
+                                    {% if obs.codigo_loinc %}
+                                    <small class="text-muted">LOINC: {{ obs.codigo_loinc }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div style="color: #b0bec5;">
-                    🏢 {{ e.sede.nombre if e.sede else 'N/A' }}
+                {% endif %}
+                
+                {% if e.fhir_encounter_id %}
+                <div class="mt-3 pt-3 border-top border-secondary">
+                    <small class="text-muted">
+                        <i class="bi bi-link-45deg"></i> FHIR Encounter ID: <code>{{ e.fhir_encounter_id }}</code>
+                    </small>
                 </div>
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <strong style="color: #4fc3f7;">Médico:</strong> 
-                <span>Dr(a). {{ e.medico.nombres }} {{ e.medico.apellidos }}</span>
-            </div>
-            
-            {% if e.diagnostico %}
-            <div style="margin-bottom: 15px;">
-                <strong style="color: #4fc3f7;">Diagnóstico:</strong>
-                <p style="margin-top: 5px;">{{ e.diagnostico }}</p>
-                {% if e.diagnostico_codigo_icd10 %}
-                <span style="color: #b0bec5; font-size: 0.9rem;">Código ICD-10: {{ e.diagnostico_codigo_icd10 }}</span>
                 {% endif %}
             </div>
-            {% endif %}
-            
-            {% if e.observaciones %}
-            <div>
-                <strong style="color: #4fc3f7;">Observaciones Clínicas:</strong>
-                {% for obs in e.observaciones %}
-                <div class="observacion-item">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <strong>{{ obs.descripcion }}</strong>
-                        <span style="color: #b0bec5;">{{ obs.fecha.strftime('%d/%m/%Y %H:%M') }}</span>
-                    </div>
-                    {% if obs.valor %}
-                    <div>
-                        <span style="color: #4fc3f7;">Valor:</span> {{ obs.valor }} {{ obs.unidad or '' }}
-                    </div>
-                    {% endif %}
-                    {% if obs.interpretacion %}
-                    <div>
-                        <span style="color: #4fc3f7;">Interpretación:</span> 
-                        <span class="{% if obs.interpretacion == 'Normal' %}color: #66bb6a{% elif obs.interpretacion in ['Anormal', 'Alto', 'Bajo', 'Crítico'] %}color: #ef5350{% endif %}">
-                            {{ obs.interpretacion }}
-                        </span>
-                    </div>
-                    {% endif %}
-                    {% if obs.codigo_loinc %}
-                    <div style="color: #b0bec5; font-size: 0.85rem; margin-top: 5px;">
-                        LOINC: {{ obs.codigo_loinc }}
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            {% if e.fhir_encounter_id %}
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); color: #b0bec5; font-size: 0.85rem;">
-                🔗 FHIR Encounter ID: {{ e.fhir_encounter_id }}
-            </div>
-            {% endif %}
         </div>
         {% endfor %}
     {% else %}
-        <div class="table-container" style="text-align: center; padding: 50px;">
-            <p style="color: #b0bec5;">No tiene registros médicos aún</p>
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                <p class="text-muted">No tiene registros médicos aún</p>
+            </div>
         </div>
     {% endif %}
 </div>

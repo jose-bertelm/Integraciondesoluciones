@@ -1,36 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - Admisionista{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="text-primary"><i class="bi bi-clipboard-check"></i> Panel de Admisión</h2>
+        <p class="text-muted">Gestione el ingreso y registro de pacientes</p>
+    </div>
     
-    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Panel de Admisión</h2>
-    <p style="color: #b0bec5;">Gestione el ingreso y registro de pacientes</p>
-    
-    <div class="dashboard-cards">
-        <a href="/admisionista/pacientes" class="card">
-            <div class="card-icon">👥</div>
-            <h3>Gestión de Pacientes</h3>
-            <p>Ver, buscar y administrar pacientes registrados</p>
-        </a>
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <a href="/admisionista/pacientes" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-people-fill display-3 text-primary mb-3"></i>
+                        <h5 class="card-title">Gestión de Pacientes</h5>
+                        <p class="card-text text-muted">Ver, buscar y administrar pacientes registrados</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         
-        <a href="/admisionista/nuevo-paciente" class="card">
-            <div class="card-icon">➕</div>
-            <h3>Nuevo Paciente</h3>
-            <p>Registrar un nuevo paciente en el sistema</p>
-        </a>
+        <div class="col-md-6 col-lg-4">
+            <a href="/admisionista/nuevo-paciente" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-person-plus-fill display-3 text-success mb-3"></i>
+                        <h5 class="card-title">Nuevo Paciente</h5>
+                        <p class="card-text text-muted">Registrar un nuevo paciente en el sistema</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         
-        <a href="/admisionista/buscar" class="card">
-            <div class="card-icon">🔍</div>
-            <h3>Buscar Paciente</h3>
-            <p>Búsqueda rápida por documento o nombre</p>
-        </a>
+        <div class="col-md-6 col-lg-4">
+            <a href="/admisionista/buscar" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-search display-3 text-info mb-3"></i>
+                        <h5 class="card-title">Buscar Paciente</h5>
+                        <p class="card-text text-muted">Búsqueda rápida por documento o nombre</p>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

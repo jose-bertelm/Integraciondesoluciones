@@ -1,107 +1,118 @@
 {% extends "base.html" %}
 {% block title %}Gestión de Sedes{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
-    
-    <div class="page-header">
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
-            <h2 style="margin-top: 10px;">Gestión de Sedes</h2>
+            <a href="/dashboard" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Volver al Dashboard</a>
+            <h2 class="mt-2"><i class="bi bi-building-fill"></i> Gestión de Sedes</h2>
         </div>
-        <button class="btn btn-success" onclick="abrirModal()">+ Nueva Sede</button>
+        <button class="btn btn-success" onclick="abrirModal()"><i class="bi bi-plus-lg"></i> Nueva Sede</button>
     </div>
     
-    <div id="alert" class="alert" style="display: none;"></div>
+    <div id="alert" class="alert d-none" role="alert"></div>
     
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Ciudad</th>
-                    <th>Dirección</th>
-                    <th>Teléfono</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for s in sedes %}
-                <tr>
-                    <td>{{ s.id }}</td>
-                    <td>{{ s.nombre }}</td>
-                    <td>{{ s.ciudad }}</td>
-                    <td>{{ s.direccion or 'Sin dirección' }}</td>
-                    <td>{{ s.telefono or 'Sin teléfono' }}</td>
-                    <td>
-                        <span class="estado-badge {{ 'estado-activo' if s.activo else 'estado-inactivo' }}">
-                            {{ 'Activo' if s.activo else 'Inactivo' }}
-                        </span>
-                    </td>
-                    <td class="acciones-btns">
-                        <button class="btn btn-primary btn-sm" onclick="editarSede({{ s.id }}, '{{ s.nombre }}', '{{ s.ciudad }}', '{{ s.direccion or '' }}', '{{ s.telefono or '' }}')">✏️ Editar</button>
-                        <button class="btn {{ 'btn-warning' if s.activo else 'btn-success' }} btn-sm" onclick="toggleEstado({{ s.id }})">
-                            {{ '⏸️ Desactivar' if s.activo else '▶️ Activar' }}
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="eliminarSede({{ s.id }}, '{{ s.nombre }}')">🗑️ Eliminar</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Ciudad</th>
+                            <th>Dirección</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sedes %}
+                        <tr>
+                            <td>{{ s.id }}</td>
+                            <td>{{ s.nombre }}</td>
+                            <td>{{ s.ciudad }}</td>
+                            <td>{{ s.direccion or 'Sin dirección' }}</td>
+                            <td>{{ s.telefono or 'Sin teléfono' }}</td>
+                            <td><span class="badge {{ 'bg-success' if s.activo else 'bg-secondary' }}">{{ 'Activo' if s.activo else 'Inactivo' }}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editarSede({{ s.id }}, '{{ s.nombre }}', '{{ s.ciudad }}', '{{ s.direccion or '' }}', '{{ s.telefono or '' }}')"><i class="bi bi-pencil-fill"></i></button>
+                                <button class="btn btn-sm {{ 'btn-warning' if s.activo else 'btn-success' }}" onclick="toggleEstado({{ s.id }})"><i class="bi bi-{{ 'pause-fill' if s.activo else 'play-fill' }}"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarSede({{ s.id }}, '{{ s.nombre }}')"><i class="bi bi-trash-fill"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Modal Sede -->
-<div id="modalSede" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitulo">Nueva Sede</h3>
-            <button class="modal-close" onclick="cerrarModal()">&times;</button>
+<div class="modal fade" id="modalSede" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo">Nueva Sede</h5>
+                <button type="button" class="btn-close btn-close-white" onclick="cerrarModal()"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formSede">
+                    <input type="hidden" id="sedeId">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ciudad</label>
+                        <input type="text" class="form-control" id="ciudad" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="direccion">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" form="formSede" class="btn btn-primary">Guardar</button>
+            </div>
         </div>
-        <form id="formSede">
-            <input type="hidden" id="sedeId">
-            <div class="form-group">
-                <label>Nombre</label>
-                <input type="text" id="nombre" required>
-            </div>
-            <div class="form-group">
-                <label>Ciudad</label>
-                <input type="text" id="ciudad" required>
-            </div>
-            <div class="form-group">
-                <label>Dirección</label>
-                <input type="text" id="direccion">
-            </div>
-            <div class="form-group">
-                <label>Teléfono</label>
-                <input type="text" id="telefono">
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-        </form>
     </div>
 </div>
 
 <!-- Modal Confirmar Eliminación -->
-<div id="modalEliminar" class="modal">
-    <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-header">
-            <h3>⚠️ Confirmar Eliminación</h3>
-            <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
-        </div>
-        <p style="margin-bottom: 20px;">¿Está seguro que desea eliminar la sede <strong id="nombreEliminar"></strong>?</p>
-        <input type="hidden" id="eliminarSedeId">
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-secondary" onclick="cerrarModalEliminar()" style="flex: 1;">Cancelar</button>
-            <button class="btn btn-danger" onclick="confirmarEliminar()" style="flex: 1;">Eliminar</button>
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" onclick="cerrarModalEliminar()"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar la sede <strong id="nombreEliminar"></strong>?</p>
+                <input type="hidden" id="eliminarSedeId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="confirmarEliminar()">Eliminar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -110,21 +121,23 @@
 {% block scripts %}
 <script>
 let editando = false;
+const modalSede = new bootstrap.Modal(document.getElementById('modalSede'));
+const modalEliminar = new bootstrap.Modal(document.getElementById('modalEliminar'));
 
 function abrirModal() {
     editando = false;
     document.getElementById('modalTitulo').textContent = 'Nueva Sede';
     document.getElementById('formSede').reset();
     document.getElementById('sedeId').value = '';
-    document.getElementById('modalSede').classList.add('active');
+    modalSede.show();
 }
 
 function cerrarModal() {
-    document.getElementById('modalSede').classList.remove('active');
+    modalSede.hide();
 }
 
 function cerrarModalEliminar() {
-    document.getElementById('modalEliminar').classList.remove('active');
+    modalEliminar.hide();
 }
 
 function editarSede(id, nombre, ciudad, direccion, telefono) {
@@ -135,7 +148,7 @@ function editarSede(id, nombre, ciudad, direccion, telefono) {
     document.getElementById('ciudad').value = ciudad;
     document.getElementById('direccion').value = direccion;
     document.getElementById('telefono').value = telefono;
-    document.getElementById('modalSede').classList.add('active');
+    modalSede.show();
 }
 
 async function toggleEstado(id) {
@@ -145,14 +158,14 @@ async function toggleEstado(id) {
         mostrarAlerta(result.message, 'success');
         setTimeout(() => location.reload(), 1000);
     } else {
-        mostrarAlerta('Error al cambiar estado', 'error');
+        mostrarAlerta('Error al cambiar estado', 'danger');
     }
 }
 
 function eliminarSede(id, nombre) {
     document.getElementById('eliminarSedeId').value = id;
     document.getElementById('nombreEliminar').textContent = nombre;
-    document.getElementById('modalEliminar').classList.add('active');
+    modalEliminar.show();
 }
 
 async function confirmarEliminar() {
@@ -164,7 +177,7 @@ async function confirmarEliminar() {
         cerrarModalEliminar();
         setTimeout(() => location.reload(), 1000);
     } else {
-        mostrarAlerta('Error al eliminar sede', 'error');
+        mostrarAlerta('Error al eliminar sede', 'danger');
     }
 }
 
@@ -193,7 +206,7 @@ document.getElementById('formSede').addEventListener('submit', async (e) => {
         setTimeout(() => location.reload(), 1000);
     } else {
         const error = await response.json();
-        mostrarAlerta(error.detail || 'Error al guardar', 'error');
+        mostrarAlerta(error.detail || 'Error al guardar', 'danger');
     }
 });
 
@@ -201,8 +214,8 @@ function mostrarAlerta(mensaje, tipo) {
     const alert = document.getElementById('alert');
     alert.className = `alert alert-${tipo}`;
     alert.textContent = mensaje;
-    alert.style.display = 'block';
-    setTimeout(() => alert.style.display = 'none', 3000);
+    alert.classList.remove('d-none');
+    setTimeout(() => alert.classList.add('d-none'), 3000);
 }
 </script>
 {% endblock %}

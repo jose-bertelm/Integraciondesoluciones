@@ -1,42 +1,77 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - Administrador{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }} ({{ user.rol.nombre }})</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand">
+            <i class="bi bi-hospital fs-4"></i> Sistema Clínico
+        </span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light">
+                <i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }} 
+                <span class="badge bg-primary">{{ user.rol.nombre }}</span>
+            </span>
+            <a href="/logout" class="btn btn-secondary">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
         </div>
-    </nav>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="text-primary"><i class="bi bi-speedometer2"></i> Panel de Administración</h2>
+        <p class="text-muted">Bienvenido al sistema de gestión clínica</p>
+    </div>
     
-    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Panel de Administración</h2>
-    <p style="color: #b0bec5;">Bienvenido al sistema de gestión clínica</p>
-    
-    <div class="dashboard-cards">
-        <a href="/admin/usuarios" class="card">
-            <div class="card-icon">👥</div>
-            <h3>Usuarios</h3>
-            <p>Gestionar usuarios del sistema: crear, editar y administrar cuentas</p>
-        </a>
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <a href="/admin/usuarios" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-people-fill display-3 text-primary mb-3"></i>
+                        <h5 class="card-title">Usuarios</h5>
+                        <p class="card-text text-muted">Gestionar usuarios del sistema: crear, editar y administrar cuentas</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         
-        <a href="/admin/roles" class="card">
-            <div class="card-icon">🔐</div>
-            <h3>Roles</h3>
-            <p>Administrar roles y permisos del sistema</p>
-        </a>
+        <div class="col-md-6 col-lg-3">
+            <a href="/admin/roles" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-shield-lock-fill display-3 text-primary mb-3"></i>
+                        <h5 class="card-title">Roles</h5>
+                        <p class="card-text text-muted">Administrar roles y permisos del sistema</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         
-        <a href="/admin/sedes" class="card">
-            <div class="card-icon">🏢</div>
-            <h3>Sedes</h3>
-            <p>Gestionar las sedes de atención médica</p>
-        </a>
+        <div class="col-md-6 col-lg-3">
+            <a href="/admin/sedes" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-building-fill display-3 text-primary mb-3"></i>
+                        <h5 class="card-title">Sedes</h5>
+                        <p class="card-text text-muted">Gestionar las sedes de atención médica</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         
-        <a href="/admin/reportes" class="card">
-            <div class="card-icon">📊</div>
-            <h3>Reportes</h3>
-            <p>Ver estadísticas y reportes del sistema</p>
-        </a>
+        <div class="col-md-6 col-lg-3">
+            <a href="/admin/reportes" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-graph-up-arrow display-3 text-primary mb-3"></i>
+                        <h5 class="card-title">Reportes</h5>
+                        <p class="card-text text-muted">Ver estadísticas y reportes del sistema</p>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}
