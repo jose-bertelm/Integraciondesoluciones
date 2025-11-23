@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Paciente{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Bienvenido(a), {{ user.nombres }}</h2>
+    <p style="color: #b0bec5;">Consulte su historial médico</p>
+    
+    <div class="dashboard-cards">
+        <a href="/paciente/historial" class="card">
+            <div class="card-icon">📋</div>
+            <h3>Mi Historial Médico</h3>
+            <p>Ver todas mis consultas, diagnósticos y observaciones clínicas</p>
+        </a>
+        
+        <a href="/pdf/mi-historia" class="card" target="_blank">
+            <div class="card-icon">📄</div>
+            <h3>Descargar Historia</h3>
+            <p>Exportar mi historia clínica en formato PDF</p>
+        </a>
+    </div>
+    
+    {% if user.fhir_patient_id %}
+    <div style="margin-top: 30px; padding: 20px; background: rgba(79, 195, 247, 0.1); border-radius: 15px; border: 1px solid rgba(79, 195, 247, 0.3);">
+        <h4 style="color: #4fc3f7; margin-bottom: 10px;">🔗 Información FHIR</h4>
+        <p style="color: #b0bec5;">Su historia clínica está sincronizada con el estándar HL7 FHIR</p>
+        <p style="color: #b0bec5; font-size: 0.9rem;">FHIR Patient ID: <strong style="color: #4fc3f7;">{{ user.fhir_patient_id }}</strong></p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Encuentro Médico{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👨‍⚕️ Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <div>
+            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
+            <h2 style="margin-top: 10px;">Registrar Encuentro Médico</h2>
+        </div>
+    </div>
+    
+    <div id="alert" class="alert" style="display: none;"></div>
+    
+    <div class="table-container">
+        <form id="formEncuentro">
+            <div class="form-group">
+                <label>Paciente</label>
+                <select id="paciente_id" required>
+                    <option value="">Seleccione un paciente</option>
+                    {% for p in pacientes %}
+                    <option value="{{ p.id }}">{{ p.nombres }} {{ p.apellidos }} - {{ p.numero_documento }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Tipo de Encuentro</label>
+                <select id="tipo_id" required>
+                    {% for t in tipos_encuentro %}
+                    <option value="{{ t.id }}">{{ t.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Sede</label>
+                <select id="sede_id" required>
+                    {% for s in sedes %}
+                    <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Diagnóstico</label>
+                <textarea id="diagnostico" rows="3" placeholder="Describa el diagnóstico"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Código ICD-10 (opcional)</label>
+                <input type="text" id="diagnostico_codigo_icd10" placeholder="Ej: J00, A09">
+            </div>
+            
+            <div class="form-group">
+                <label>Código SNOMED CT (opcional)</label>
+                <input type="text" id="diagnostico_codigo_snomed" placeholder="Ej: 386661006">
+            </div>
+            
+            <div class="observaciones-container">
+                <h3 style="color: #4fc3f7; margin-bottom: 15px;">Observaciones Clínicas</h3>
+                <div id="observacionesList"></div>
+                <button type="button" class="btn btn-secondary" onclick="agregarObservacion()">+ Agregar Observación</button>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">Guardar Encuentro</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let obsCount = 0;
+
+function agregarObservacion() {
+    const container = document.getElementById('observacionesList');
+    const div = document.createElement('div');
+    div.className = 'observacion-form';
+    div.id = `obs_${obsCount}`;
+    div.innerHTML = `
+        <div class="form-group">
+            <label>Descripción</label>
+            <input type="text" class="obs-descripcion" required placeholder="Ej: Presión arterial, Temperatura">
+        </div>
+        <div class="form-group">
+            <label>Valor</label>
+            <input type="text" class="obs-valor" placeholder="Ej: 120/80, 37.5">
+        </div>
+        <div class="form-group">
+            <label>Unidad</label>
+            <input type="text" class="obs-unidad" placeholder="Ej: mmHg, °C, mg/dL">
+        </div>
+        <div class="form-group">
+            <label>Código LOINC (opcional)</label>
+            <input type="text" class="obs-loinc" placeholder="Ej: 8480-6">
+        </div>
+        <div class="form-group">
+            <label>Interpretación</label>
+            <select class="obs-interpretacion">
+                <option value="">Seleccione</option>
+                <option value="Normal">Normal</option>
+                <option value="Anormal">Anormal</option>
+                <option value="Alto">Alto</option>
+                <option value="Bajo">Bajo</option>
+                <option value="Crítico">Crítico</option>
+            </select>
+        </div>
+        <button type="button" class="remove-obs" onclick="eliminarObservacion(${obsCount})">Eliminar</button>
+    `;
+    container.appendChild(div);
+    obsCount++;
+}
+
+function eliminarObservacion(id) {
+    document.getElementById(`obs_${id}`).remove();
+}
+
+document.getElementById('formEncuentro').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const observaciones = [];
+    document.querySelectorAll('.observacion-form').forEach(form => {
+        const desc = form.querySelector('.obs-descripcion').value;
+        if (desc) {
+            observaciones.push({
+                descripcion: desc,
+                valor: form.querySelector('.obs-valor').value || null,
+                unidad: form.querySelector('.obs-unidad').value || null,
+                codigo_loinc: form.querySelector('.obs-loinc').value || null,
+                interpretacion: form.querySelector('.obs-interpretacion').value || null
+            });
+        }
+    });
+    
+    const data = {
+        paciente_id: parseInt(document.getElementById('paciente_id').value),
+        tipo_id: parseInt(document.getElementById('tipo_id').value),
+        sede_id: parseInt(document.getElementById('sede_id').value),
+        diagnostico: document.getElementById('diagnostico').value || null,
+        diagnostico_codigo_icd10: document.getElementById('diagnostico_codigo_icd10').value || null,
+        diagnostico_codigo_snomed: document.getElementById('diagnostico_codigo_snomed').value || null,
+        observaciones: observaciones
+    };
+    
+    try {
+        const response = await fetch('/encuentros/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            mostrarAlerta('Encuentro registrado correctamente. FHIR ID: ' + (result.fhir_encounter_id || 'Pendiente'), 'success');
+            setTimeout(() => window.location.href = '/medico/consultas', 2000);
+        } else {
+            const error = await response.json();
+            mostrarAlerta(error.detail || 'Error al guardar', 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('Error de conexión', 'error');
+    }
+});
+
+function mostrarAlerta(mensaje, tipo) {
+    const alert = document.getElementById('alert');
+    alert.className = `alert alert-${tipo}`;
+    alert.textContent = mensaje;
+    alert.style.display = 'block';
+    window.scrollTo(0, 0);
+}
+</script>
+{% endblock %}

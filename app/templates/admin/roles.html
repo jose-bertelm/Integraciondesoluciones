@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Roles{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <div>
+            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
+            <h2 style="margin-top: 10px;">Gestión de Roles</h2>
+        </div>
+        <button class="btn btn-success" onclick="abrirModal()">+ Nuevo Rol</button>
+    </div>
+    
+    <div id="alert" class="alert" style="display: none;"></div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in roles %}
+                <tr>
+                    <td>{{ r.id }}</td>
+                    <td>{{ r.nombre }}</td>
+                    <td>{{ r.descripcion or 'Sin descripción' }}</td>
+                    <td>{{ 'Activo' if r.activo else 'Inactivo' }}</td>
+                    <td>
+                        <button class="btn btn-primary" style="padding: 8px 15px;" onclick="editarRol({{ r.id }}, '{{ r.nombre }}', '{{ r.descripcion or '' }}')">Editar</button>
+                        <button class="btn btn-danger" style="padding: 8px 15px;" onclick="eliminarRol({{ r.id }})">Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="modalRol" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitulo">Nuevo Rol</h3>
+            <button class="modal-close" onclick="cerrarModal()">&times;</button>
+        </div>
+        <form id="formRol">
+            <input type="hidden" id="rolId">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="nombre" required>
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea id="descripcion" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let editando = false;
+
+function abrirModal() {
+    editando = false;
+    document.getElementById('modalTitulo').textContent = 'Nuevo Rol';
+    document.getElementById('formRol').reset();
+    document.getElementById('rolId').value = '';
+    document.getElementById('modalRol').classList.add('active');
+}
+
+function cerrarModal() {
+    document.getElementById('modalRol').classList.remove('active');
+}
+
+function editarRol(id, nombre, descripcion) {
+    editando = true;
+    document.getElementById('modalTitulo').textContent = 'Editar Rol';
+    document.getElementById('rolId').value = id;
+    document.getElementById('nombre').value = nombre;
+    document.getElementById('descripcion').value = descripcion;
+    document.getElementById('modalRol').classList.add('active');
+}
+
+async function eliminarRol(id) {
+    if (!confirm('¿Está seguro de eliminar este rol?')) return;
+    
+    const response = await fetch(`/roles/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+        mostrarAlerta('Rol eliminado correctamente', 'success');
+        setTimeout(() => location.reload(), 1000);
+    } else {
+        mostrarAlerta('Error al eliminar rol', 'error');
+    }
+}
+
+document.getElementById('formRol').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('rolId').value;
+    const url = editando ? `/roles/${id}` : '/roles/';
+    const method = editando ? 'PUT' : 'POST';
+    
+    const data = {
+        nombre: document.getElementById('nombre').value,
+        descripcion: document.getElementById('descripcion').value || null
+    };
+    
+    const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+        mostrarAlerta(editando ? 'Rol actualizado' : 'Rol creado', 'success');
+        cerrarModal();
+        setTimeout(() => location.reload(), 1000);
+    } else {
+        const error = await response.json();
+        mostrarAlerta(error.detail || 'Error al guardar', 'error');
+    }
+});
+
+function mostrarAlerta(mensaje, tipo) {
+    const alert = document.getElementById('alert');
+    alert.className = `alert alert-${tipo}`;
+    alert.textContent = mensaje;
+    alert.style.display = 'block';
+    setTimeout(() => alert.style.display = 'none', 3000);
+}
+</script>
+{% endblock %}

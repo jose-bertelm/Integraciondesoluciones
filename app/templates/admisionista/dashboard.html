@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Admisionista{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Panel de Admisión</h2>
+    <p style="color: #b0bec5;">Gestione el ingreso y registro de pacientes</p>
+    
+    <div class="dashboard-cards">
+        <a href="/admisionista/pacientes" class="card">
+            <div class="card-icon">👥</div>
+            <h3>Gestión de Pacientes</h3>
+            <p>Ver, buscar y administrar pacientes registrados</p>
+        </a>
+        
+        <a href="/admisionista/nuevo-paciente" class="card">
+            <div class="card-icon">➕</div>
+            <h3>Nuevo Paciente</h3>
+            <p>Registrar un nuevo paciente en el sistema</p>
+        </a>
+        
+        <a href="/admisionista/buscar" class="card">
+            <div class="card-icon">🔍</div>
+            <h3>Buscar Paciente</h3>
+            <p>Búsqueda rápida por documento o nombre</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

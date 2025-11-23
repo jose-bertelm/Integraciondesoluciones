@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Médico{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👨‍⚕️ Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Panel Médico</h2>
+    <p style="color: #b0bec5;">Gestione sus consultas y registre encuentros médicos</p>
+    
+    <div class="dashboard-cards">
+        <a href="/medico/nuevo-encuentro" class="card">
+            <div class="card-icon">📋</div>
+            <h3>Nuevo Encuentro</h3>
+            <p>Registrar un nuevo encuentro médico con observaciones clínicas</p>
+        </a>
+        
+        <a href="/medico/consultas" class="card">
+            <div class="card-icon">📁</div>
+            <h3>Mis Consultas</h3>
+            <p>Ver el historial de consultas realizadas</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

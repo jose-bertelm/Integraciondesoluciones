@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Buscar Paciente{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <div>
+            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
+            <h2 style="margin-top: 10px;">🔍 Búsqueda Rápida de Paciente</h2>
+        </div>
+    </div>
+    
+    <div class="table-container" style="max-width: 600px; margin: 0 auto;">
+        <div class="form-group">
+            <label>Ingrese número de documento</label>
+            <input type="text" id="documento" placeholder="Ej: 1234567890" autofocus>
+        </div>
+        <button class="btn btn-primary" onclick="buscarPaciente()" style="width: 100%;">🔍 Buscar</button>
+        
+        <div id="resultado" style="margin-top: 30px; display: none;">
+            <div id="encontrado" style="display: none;">
+                <div style="background: rgba(102, 187, 106, 0.1); border: 1px solid #66bb6a; border-radius: 15px; padding: 20px;">
+                    <h3 style="color: #66bb6a; margin-bottom: 15px;">✅ Paciente Encontrado</h3>
+                    <div style="display: grid; gap: 10px;">
+                        <p><strong>Nombre:</strong> <span id="resNombre"></span></p>
+                        <p><strong>Documento:</strong> <span id="resDocumento"></span></p>
+                        <p><strong>Fecha Nacimiento:</strong> <span id="resFecha"></span></p>
+                        <p><strong>Teléfono:</strong> <span id="resTelefono"></span></p>
+                        <p><strong>Email:</strong> <span id="resEmail"></span></p>
+                        <p><strong>FHIR ID:</strong> <span id="resFhir"></span></p>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn btn-primary" id="btnEditar">✏️ Editar</button>
+                        <button class="btn btn-secondary" id="btnHistoria">📄 Ver Historia</button>
+                        <button class="btn btn-info" id="btnCarne">🪪 Generar Carné</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="noEncontrado" style="display: none;">
+                <div style="background: rgba(239, 83, 80, 0.1); border: 1px solid #ef5350; border-radius: 15px; padding: 20px; text-align: center;">
+                    <h3 style="color: #ef5350; margin-bottom: 15px;">❌ Paciente No Encontrado</h3>
+                    <p style="color: #b0bec5; margin-bottom: 20px;">No existe un paciente con ese número de documento</p>
+                    <a href="/admisionista/nuevo-paciente" class="btn btn-success">➕ Registrar Nuevo Paciente</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-info {
+    background: linear-gradient(135deg, #29b6f6 0%, #0288d1 100%);
+    color: #fff;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let pacienteActual = null;
+
+document.getElementById('documento').addEventListener('keyup', function(e) {
+    if (e.key === 'Enter') buscarPaciente();
+});
+
+async function buscarPaciente() {
+    const documento = document.getElementById('documento').value.trim();
+    if (!documento) return;
+    
+    try {
+        const response = await fetch(`/admisionista/api/buscar/${documento}`);
+        const data = await response.json();
+        
+        document.getElementById('resultado').style.display = 'block';
+        
+        if (data.encontrado) {
+            pacienteActual = data.paciente;
+            document.getElementById('encontrado').style.display = 'block';
+            document.getElementById('noEncontrado').style.display = 'none';
+            
+            document.getElementById('resNombre').textContent = `${data.paciente.nombres} ${data.paciente.apellidos}`;
+            document.getElementById('resDocumento').textContent = data.paciente.numero_documento;
+            document.getElementById('resFecha').textContent = data.paciente.fecha_nacimiento || 'N/A';
+            document.getElementById('resTelefono').textContent = data.paciente.telefono || 'No registrado';
+            document.getElementById('resEmail').textContent = data.paciente.email || 'No registrado';
+            document.getElementById('resFhir').textContent = data.paciente.fhir_patient_id || 'No sincronizado';
+            
+            document.getElementById('btnEditar').onclick = () => window.location.href = `/admisionista/pacientes?edit=${data.paciente.id}`;
+            document.getElementById('btnHistoria').onclick = () => window.open(`/pdf/historia/${data.paciente.id}`, '_blank');
+            document.getElementById('btnCarne').onclick = () => window.open(`/pdf/carne/${data.paciente.id}`, '_blank');
+        } else {
+            document.getElementById('encontrado').style.display = 'none';
+            document.getElementById('noEncontrado').style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+</script>
+{% endblock %}

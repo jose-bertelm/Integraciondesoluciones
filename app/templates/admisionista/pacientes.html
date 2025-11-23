@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Pacientes{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <div>
+            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
+            <h2 style="margin-top: 10px;">Gestión de Pacientes</h2>
+        </div>
+        <a href="/admisionista/nuevo-paciente" class="btn btn-success">+ Nuevo Paciente</a>
+    </div>
+    
+    <!-- Búsqueda -->
+    <div class="table-container" style="margin-bottom: 20px; padding: 20px;">
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <input type="text" id="busqueda" placeholder="Buscar por documento o nombre..." style="flex: 1; padding: 12px 15px; border: none; border-radius: 10px; background: rgba(255,255,255,0.1); color: #fff;">
+            <button class="btn btn-primary" onclick="buscar()">🔍 Buscar</button>
+            <button class="btn btn-secondary" onclick="limpiarBusqueda()">Limpiar</button>
+        </div>
+    </div>
+    
+    <div id="alert" class="alert" style="display: none;"></div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Documento</th>
+                    <th>Nombre Completo</th>
+                    <th>Fecha Nacimiento</th>
+                    <th>Teléfono</th>
+                    <th>FHIR ID</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaPacientes">
+                {% for p in pacientes %}
+                <tr class="fila-paciente" data-documento="{{ p.numero_documento }}" data-nombre="{{ p.nombres }} {{ p.apellidos }}">
+                    <td>{{ p.tipo_documento.prefijo if p.tipo_documento else '' }} {{ p.numero_documento }}</td>
+                    <td>{{ p.nombres }} {{ p.apellidos }}</td>
+                    <td>{{ p.fecha_nacimiento.strftime('%d/%m/%Y') if p.fecha_nacimiento else 'N/A' }}</td>
+                    <td>{{ p.telefono or 'No registrado' }}</td>
+                    <td>
+                        {% if p.fhir_patient_id %}
+                        <span style="color: #4fc3f7;">{{ p.fhir_patient_id }}</span>
+                        {% else %}
+                        <span style="color: #ef5350;">No sincronizado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="estado-badge {{ 'estado-activo' if p.activo else 'estado-inactivo' }}">
+                            {{ 'Activo' if p.activo else 'Inactivo' }}
+                        </span>
+                    </td>
+                    <td class="acciones-btns">
+                        <button class="btn btn-primary btn-sm" onclick="editarPaciente({{ p.id }})">✏️ Editar</button>
+                        <a href="/pdf/historia/{{ p.id }}" target="_blank" class="btn btn-secondary btn-sm">📄 Historia</a>
+                        <button class="btn btn-info btn-sm" onclick="generarCarne({{ p.id }})">🪪 Carné</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not pacientes %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #b0bec5;">No hay pacientes registrados</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Editar Paciente -->
+<div id="modalPaciente" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Editar Paciente</h3>
+            <button class="modal-close" onclick="cerrarModal()">&times;</button>
+        </div>
+        <form id="formPaciente">
+            <input type="hidden" id="pacienteId">
+            <div class="form-group">
+                <label>Nombres</label>
+                <input type="text" id="nombres" required>
+            </div>
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input type="text" id="apellidos" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Documento</label>
+                <select id="tipo_documento_id" required>
+                    {% for td in tipos_documento %}
+                    <option value="{{ td.id }}">{{ td.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Número de Documento</label>
+                <input type="text" id="numero_documento" disabled>
+            </div>
+            <div class="form-group">
+                <label>Fecha de Nacimiento</label>
+                <input type="date" id="fecha_nacimiento" required>
+            </div>
+            <div class="form-group">
+                <label>Género</label>
+                <select id="genero" required>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" id="telefono">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email">
+            </div>
+            <div class="form-group">
+                <label>Sede</label>
+                <select id="sede_registro_id" required>
+                    {% for s in sedes %}
+                    <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.btn-info {
+    background: linear-gradient(135deg, #29b6f6 0%, #0288d1 100%);
+    color: #fff;
+}
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+.acciones-btns {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function buscar() {
+    const termino = document.getElementById('busqueda').value.toLowerCase();
+    const filas = document.querySelectorAll('.fila-paciente');
+    
+    filas.forEach(fila => {
+        const documento = fila.dataset.documento.toLowerCase();
+        const nombre = fila.dataset.nombre.toLowerCase();
+        
+        if (documento.includes(termino) || nombre.includes(termino)) {
+            fila.style.display = '';
+        } else {
+            fila.style.display = 'none';
+        }
+    });
+}
+
+function limpiarBusqueda() {
+    document.getElementById('busqueda').value = '';
+    document.querySelectorAll('.fila-paciente').forEach(fila => {
+        fila.style.display = '';
+    });
+}
+
+document.getElementById('busqueda').addEventListener('keyup', function(e) {
+    if (e.key === 'Enter') buscar();
+});
+
+async function editarPaciente(id) {
+    const response = await fetch(`/usuarios/${id}`);
+    const paciente = await response.json();
+    
+    document.getElementById('pacienteId').value = paciente.id;
+    document.getElementById('nombres').value = paciente.nombres;
+    document.getElementById('apellidos').value = paciente.apellidos;
+    document.getElementById('tipo_documento_id').value = paciente.tipo_documento_id;
+    document.getElementById('numero_documento').value = paciente.numero_documento;
+    document.getElementById('fecha_nacimiento').value = paciente.fecha_nacimiento;
+    document.getElementById('genero').value = paciente.genero;
+    document.getElementById('telefono').value = paciente.telefono || '';
+    document.getElementById('email').value = paciente.email || '';
+    document.getElementById('sede_registro_id').value = paciente.sede_registro_id;
+    
+    document.getElementById('modalPaciente').classList.add('active');
+}
+
+function cerrarModal() {
+    document.getElementById('modalPaciente').classList.remove('active');
+}
+
+document.getElementById('formPaciente').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('pacienteId').value;
+    
+    const data = {
+        nombres: document.getElementById('nombres').value,
+        apellidos: document.getElementById('apellidos').value,
+        tipo_documento_id: parseInt(document.getElementById('tipo_documento_id').value),
+        fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+        genero: document.getElementById('genero').value,
+        telefono: document.getElementById('telefono').value || null,
+        email: document.getElementById('email').value || null,
+        sede_registro_id: parseInt(document.getElementById('sede_registro_id').value)
+    };
+    
+    const response = await fetch(`/usuarios/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+        mostrarAlerta('Paciente actualizado correctamente', 'success');
+        cerrarModal();
+        setTimeout(() => location.reload(), 1000);
+    } else {
+        const error = await response.json();
+        mostrarAlerta(error.detail || 'Error al actualizar', 'error');
+    }
+});
+
+function generarCarne(id) {
+    window.open(`/pdf/carne/${id}`, '_blank');
+}
+
+function mostrarAlerta(mensaje, tipo) {
+    const alert = document.getElementById('alert');
+    alert.className = `alert alert-${tipo}`;
+    alert.textContent = mensaje;
+    alert.style.display = 'block';
+    setTimeout(() => alert.style.display = 'none', 3000);
+}
+</script>
+{% endblock %}

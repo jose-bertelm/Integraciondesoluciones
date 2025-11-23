@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Administrador{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }} ({{ user.rol.nombre }})</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Panel de Administración</h2>
+    <p style="color: #b0bec5;">Bienvenido al sistema de gestión clínica</p>
+    
+    <div class="dashboard-cards">
+        <a href="/admin/usuarios" class="card">
+            <div class="card-icon">👥</div>
+            <h3>Usuarios</h3>
+            <p>Gestionar usuarios del sistema: crear, editar y administrar cuentas</p>
+        </a>
+        
+        <a href="/admin/roles" class="card">
+            <div class="card-icon">🔐</div>
+            <h3>Roles</h3>
+            <p>Administrar roles y permisos del sistema</p>
+        </a>
+        
+        <a href="/admin/sedes" class="card">
+            <div class="card-icon">🏢</div>
+            <h3>Sedes</h3>
+            <p>Gestionar las sedes de atención médica</p>
+        </a>
+        
+        <a href="/admin/reportes" class="card">
+            <div class="card-icon">📊</div>
+            <h3>Reportes</h3>
+            <p>Ver estadísticas y reportes del sistema</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

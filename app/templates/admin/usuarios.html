@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Usuarios{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <div>
+            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
+            <h2 style="margin-top: 10px;">Gestión de Usuarios</h2>
+        </div>
+        <button class="btn btn-success" onclick="abrirModal()">+ Nuevo Usuario</button>
+    </div>
+    
+    <div id="alert" class="alert" style="display: none;"></div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Documento</th>
+                    <th>Rol</th>
+                    <th>Sede</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaUsuarios">
+                {% for u in usuarios %}
+                <tr id="row-{{ u.id }}">
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.nombres }} {{ u.apellidos }}</td>
+                    <td>{{ u.tipo_documento.prefijo if u.tipo_documento else '' }} {{ u.numero_documento }}</td>
+                    <td>{{ u.rol.nombre if u.rol else 'Sin rol' }}</td>
+                    <td>{{ u.sede_registro.nombre if u.sede_registro else 'Sin sede' }}</td>
+                    <td>
+                        <span class="estado-badge {{ 'estado-activo' if u.activo else 'estado-inactivo' }}">
+                            {{ 'Activo' if u.activo else 'Inactivo' }}
+                        </span>
+                    </td>
+                    <td class="acciones-btns">
+                        <button class="btn btn-primary btn-sm" onclick="editarUsuario({{ u.id }})">✏️ Editar</button>
+                        <button class="btn {{ 'btn-warning' if u.activo else 'btn-success' }} btn-sm" onclick="toggleEstado({{ u.id }}, {{ 'true' if u.activo else 'false' }})">
+                            {{ '⏸️ Desactivar' if u.activo else '▶️ Activar' }}
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarUsuario({{ u.id }}, '{{ u.nombres }} {{ u.apellidos }}')">🗑️ Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Usuario -->
+<div id="modalUsuario" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitulo">Nuevo Usuario</h3>
+            <button class="modal-close" onclick="cerrarModal()">&times;</button>
+        </div>
+        <form id="formUsuario">
+            <input type="hidden" id="usuarioId">
+            <div class="form-group">
+                <label>Nombres</label>
+                <input type="text" id="nombres" required>
+            </div>
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input type="text" id="apellidos" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Documento</label>
+                <select id="tipo_documento_id" required>
+                    {% for td in tipos_documento %}
+                    <option value="{{ td.id }}">{{ td.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Número de Documento</label>
+                <input type="text" id="numero_documento" required>
+            </div>
+            <div class="form-group">
+                <label>Fecha de Nacimiento</label>
+                <input type="date" id="fecha_nacimiento" required>
+            </div>
+            <div class="form-group">
+                <label>Género</label>
+                <select id="genero" required>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" id="telefono">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email">
+            </div>
+            <div class="form-group">
+                <label>Sede</label>
+                <select id="sede_registro_id" required>
+                    {% for s in sedes %}
+                    <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Rol</label>
+                <select id="rol_id" required>
+                    {% for r in roles %}
+                    <option value="{{ r.id }}">{{ r.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" id="passwordGroup">
+                <label>Contraseña</label>
+                <input type="password" id="password">
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Confirmar Eliminación -->
+<div id="modalEliminar" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3>⚠️ Confirmar Eliminación</h3>
+            <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
+        </div>
+        <p style="margin-bottom: 20px;">¿Está seguro que desea eliminar permanentemente al usuario <strong id="nombreEliminar"></strong>?</p>
+        <p style="color: #ef5350; margin-bottom: 20px;">Esta acción no se puede deshacer y eliminará el registro de HAPI FHIR.</p>
+        <input type="hidden" id="eliminarUsuarioId">
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="cerrarModalEliminar()" style="flex: 1;">Cancelar</button>
+            <button class="btn btn-danger" onclick="confirmarEliminar()" style="flex: 1;">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+.btn-warning {
+    background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+    color: #fff;
+}
+.acciones-btns {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+.estado-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.estado-activo {
+    background: rgba(102, 187, 106, 0.2);
+    color: #66bb6a;
+}
+.estado-inactivo {
+    background: rgba(239, 83, 80, 0.2);
+    color: #ef5350;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let editando = false;
+
+function abrirModal() {
+    editando = false;
+    document.getElementById('modalTitulo').textContent = 'Nuevo Usuario';
+    document.getElementById('formUsuario').reset();
+    document.getElementById('usuarioId').value = '';
+    document.getElementById('passwordGroup').style.display = 'block';
+    document.getElementById('password').required = true;
+    document.getElementById('numero_documento').disabled = false;
+    document.getElementById('modalUsuario').classList.add('active');
+}
+
+function cerrarModal() {
+    document.getElementById('modalUsuario').classList.remove('active');
+}
+
+function cerrarModalEliminar() {
+    document.getElementById('modalEliminar').classList.remove('active');
+}
+
+async function editarUsuario(id) {
+    editando = true;
+    const response = await fetch(`/usuarios/${id}`);
+    const usuario = await response.json();
+    
+    document.getElementById('modalTitulo').textContent = 'Editar Usuario';
+    document.getElementById('usuarioId').value = usuario.id;
+    document.getElementById('nombres').value = usuario.nombres;
+    document.getElementById('apellidos').value = usuario.apellidos;
+    document.getElementById('tipo_documento_id').value = usuario.tipo_documento_id;
+    document.getElementById('numero_documento').value = usuario.numero_documento;
+    document.getElementById('numero_documento').disabled = true;
+    document.getElementById('fecha_nacimiento').value = usuario.fecha_nacimiento;
+    document.getElementById('genero').value = usuario.genero;
+    document.getElementById('telefono').value = usuario.telefono || '';
+    document.getElementById('email').value = usuario.email || '';
+    document.getElementById('sede_registro_id').value = usuario.sede_registro_id;
+    document.getElementById('rol_id').value = usuario.rol_id;
+    document.getElementById('passwordGroup').style.display = 'none';
+    document.getElementById('password').required = false;
+    
+    document.getElementById('modalUsuario').classList.add('active');
+}
+
+async function toggleEstado(id, estadoActual) {
+    const nuevoEstado = !estadoActual;
+    const response = await fetch(`/usuarios/${id}/toggle-estado`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activo: nuevoEstado })
+    });
+    
+    if (response.ok) {
+        mostrarAlerta(`Usuario ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`, 'success');
+        setTimeout(() => location.reload(), 1000);
+    } else {
+        const error = await response.json();
+        mostrarAlerta(error.detail || 'Error al cambiar estado', 'error');
+    }
+}
+
+function eliminarUsuario(id, nombre) {
+    document.getElementById('eliminarUsuarioId').value = id;
+    document.getElementById('nombreEliminar').textContent = nombre;
+    document.getElementById('modalEliminar').classList.add('active');
+}
+
+async function confirmarEliminar() {
+    const id = document.getElementById('eliminarUsuarioId').value;
+    const response = await fetch(`/usuarios/${id}`, { method: 'DELETE' });
+    
+    if (response.ok) {
+        mostrarAlerta('Usuario eliminado completamente', 'success');
+        cerrarModalEliminar();
+        setTimeout(() => location.reload(), 1000);
+    } else {
+        const error = await response.json();
+        mostrarAlerta(error.detail || 'Error al eliminar usuario', 'error');
+    }
+}
+
+document.getElementById('formUsuario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('usuarioId').value;
+    const url = editando ? `/usuarios/${id}` : '/usuarios/';
+    const method = editando ? 'PUT' : 'POST';
+    
+    const data = {
+        nombres: document.getElementById('nombres').value,
+        apellidos: document.getElementById('apellidos').value,
+        tipo_documento_id: parseInt(document.getElementById('tipo_documento_id').value),
+        numero_documento: document.getElementById('numero_documento').value,
+        fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+        genero: document.getElementById('genero').value,
+        telefono: document.getElementById('telefono').value || null,
+        email: document.getElementById('email').value || null,
+        sede_registro_id: parseInt(document.getElementById('sede_registro_id').value),
+        rol_id: parseInt(document.getElementById('rol_id').value)
+    };
+    
+    if (!editando) {
+        data.password = document.getElementById('password').value;
+    }
+    
+    const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+        mostrarAlerta(editando ? 'Usuario actualizado' : 'Usuario creado', 'success');
+        cerrarModal();
+        setTimeout(() => location.reload(), 1000);
+    } else {
+        const error = await response.json();
+        mostrarAlerta(error.detail || 'Error al guardar', 'error');
+    }
+});
+
+function mostrarAlerta(mensaje, tipo) {
+    const alert = document.getElementById('alert');
+    alert.className = `alert alert-${tipo}`;
+    alert.textContent = mensaje;
+    alert.style.display = 'block';
+    setTimeout(() => alert.style.display = 'none', 3000);
+}
+</script>
+{% endblock %}

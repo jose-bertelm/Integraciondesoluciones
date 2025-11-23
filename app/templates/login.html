@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión - Sistema Clínico{% endblock %}
+{% block content %}
+<div class="login-container">
+    <div class="login-box">
+        <h1>🏥 Sistema Clínico</h1>
+        <div id="alert" class="alert" style="display: none;"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="numero_documento">Número de Documento</label>
+                <input type="text" id="numero_documento" name="numero_documento" required placeholder="Ingrese su documento">
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required placeholder="Ingrese su contraseña">
+            </div>
+            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const alert = document.getElementById('alert');
+    const data = {
+        numero_documento: document.getElementById('numero_documento').value,
+        password: document.getElementById('password').value
+    };
+    
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            const result = await response.json();
+            alert.className = 'alert alert-error';
+            alert.textContent = result.detail || 'Error al iniciar sesión';
+            alert.style.display = 'block';
+        }
+    } catch (error) {
+        alert.className = 'alert alert-error';
+        alert.textContent = 'Error de conexión';
+        alert.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

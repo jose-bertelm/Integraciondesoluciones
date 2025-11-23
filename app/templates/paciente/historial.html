@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Mi Historial Médico{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <div>
+            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
+            <h2 style="margin-top: 10px;">Mi Historial Médico</h2>
+        </div>
+    </div>
+    
+    {% if encuentros %}
+        {% for e in encuentros %}
+        <div class="historial-item">
+            <div class="historial-header">
+                <div>
+                    <span class="historial-date">📅 {{ e.fecha.strftime('%d/%m/%Y %H:%M') }}</span>
+                    <span style="margin-left: 15px; color: #b0bec5;">{{ e.tipo.nombre if e.tipo else 'Consulta' }}</span>
+                </div>
+                <div style="color: #b0bec5;">
+                    🏢 {{ e.sede.nombre if e.sede else 'N/A' }}
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #4fc3f7;">Médico:</strong> 
+                <span>Dr(a). {{ e.medico.nombres }} {{ e.medico.apellidos }}</span>
+            </div>
+            
+            {% if e.diagnostico %}
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #4fc3f7;">Diagnóstico:</strong>
+                <p style="margin-top: 5px;">{{ e.diagnostico }}</p>
+                {% if e.diagnostico_codigo_icd10 %}
+                <span style="color: #b0bec5; font-size: 0.9rem;">Código ICD-10: {{ e.diagnostico_codigo_icd10 }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {% if e.observaciones %}
+            <div>
+                <strong style="color: #4fc3f7;">Observaciones Clínicas:</strong>
+                {% for obs in e.observaciones %}
+                <div class="observacion-item">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <strong>{{ obs.descripcion }}</strong>
+                        <span style="color: #b0bec5;">{{ obs.fecha.strftime('%d/%m/%Y %H:%M') }}</span>
+                    </div>
+                    {% if obs.valor %}
+                    <div>
+                        <span style="color: #4fc3f7;">Valor:</span> {{ obs.valor }} {{ obs.unidad or '' }}
+                    </div>
+                    {% endif %}
+                    {% if obs.interpretacion %}
+                    <div>
+                        <span style="color: #4fc3f7;">Interpretación:</span> 
+                        <span class="{% if obs.interpretacion == 'Normal' %}color: #66bb6a{% elif obs.interpretacion in ['Anormal', 'Alto', 'Bajo', 'Crítico'] %}color: #ef5350{% endif %}">
+                            {{ obs.interpretacion }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% if obs.codigo_loinc %}
+                    <div style="color: #b0bec5; font-size: 0.85rem; margin-top: 5px;">
+                        LOINC: {{ obs.codigo_loinc }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if e.fhir_encounter_id %}
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); color: #b0bec5; font-size: 0.85rem;">
+                🔗 FHIR Encounter ID: {{ e.fhir_encounter_id }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="table-container" style="text-align: center; padding: 50px;">
+            <p style="color: #b0bec5;">No tiene registros médicos aún</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

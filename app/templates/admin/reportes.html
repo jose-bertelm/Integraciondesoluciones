@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Reportes y Estadísticas{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 Sistema Clínico</div>
+        <div class="navbar-user">
+            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <div>
+            <a href="/dashboard" style="color: #4fc3f7; text-decoration: none;">← Volver al Dashboard</a>
+            <h2 style="margin-top: 10px;">📊 Reportes y Estadísticas</h2>
+        </div>
+        <button class="btn btn-primary" onclick="cargarEstadisticas()">🔄 Actualizar</button>
+    </div>
+    
+    <div id="loading" style="text-align: center; padding: 50px; display: none;">
+        <p style="color: #4fc3f7;">Cargando estadísticas...</p>
+    </div>
+    
+    <!-- Resumen General -->
+    <div class="dashboard-cards" id="resumenCards">
+        <div class="card stat-card">
+            <div class="card-icon">👥</div>
+            <h3 id="totalUsuarios">-</h3>
+            <p>Usuarios Totales</p>
+        </div>
+        <div class="card stat-card">
+            <div class="card-icon">📋</div>
+            <h3 id="totalEncuentros">-</h3>
+            <p>Encuentros Médicos</p>
+        </div>
+        <div class="card stat-card">
+            <div class="card-icon">🔬</div>
+            <h3 id="totalObservaciones">-</h3>
+            <p>Observaciones Clínicas</p>
+        </div>
+        <div class="card stat-card">
+            <div class="card-icon">🏢</div>
+            <h3 id="totalSedes">-</h3>
+            <p>Sedes Activas</p>
+        </div>
+    </div>
+    
+    <!-- Detalles -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; margin-top: 30px;">
+        
+        <!-- Usuarios por Rol -->
+        <div class="table-container">
+            <h3 style="color: #4fc3f7; margin-bottom: 20px;">👥 Usuarios por Rol</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rol</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuariosRol">
+                    <tr><td colspan="2" style="text-align: center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                <p><span style="color: #66bb6a;">● Activos:</span> <span id="usuariosActivos">-</span></p>
+                <p><span style="color: #ef5350;">● Inactivos:</span> <span id="usuariosInactivos">-</span></p>
+            </div>
+        </div>
+        
+        <!-- Encuentros por Tipo -->
+        <div class="table-container">
+            <h3 style="color: #4fc3f7; margin-bottom: 20px;">📋 Encuentros por Tipo</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaEncuentrosTipo">
+                    <tr><td colspan="2" style="text-align: center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Encuentros por Sede -->
+        <div class="table-container">
+            <h3 style="color: #4fc3f7; margin-bottom: 20px;">🏢 Encuentros por Sede</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sede</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaEncuentrosSede">
+                    <tr><td colspan="2" style="text-align: center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- FHIR Sincronización -->
+        <div class="table-container">
+            <h3 style="color: #4fc3f7; margin-bottom: 20px;">🔗 Sincronización HAPI FHIR</h3>
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; background: rgba(79, 195, 247, 0.1); border-radius: 10px;">
+                    <span>Pacientes sincronizados (Patient)</span>
+                    <strong id="pacientesFhir" style="color: #4fc3f7; font-size: 1.5rem;">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(102, 187, 106, 0.1); border-radius: 10px;">
+                    <span>Médicos sincronizados (Practitioner)</span>
+                    <strong id="medicosFhir" style="color: #66bb6a; font-size: 1.5rem;">-</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    text-align: center;
+}
+.stat-card h3 {
+    font-size: 2.5rem;
+    margin: 10px 0;
+}
+.stat-card .card-icon {
+    font-size: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function cargarEstadisticas() {
+    document.getElementById('loading').style.display = 'block';
+    
+    try {
+        const response = await fetch('/reportes/estadisticas');
+        const data = await response.json();
+        
+        // Resumen
+        document.getElementById('totalUsuarios').textContent = data.usuarios.total;
+        document.getElementById('totalEncuentros').textContent = data.encuentros.total;
+        document.getElementById('totalObservaciones').textContent = data.observaciones.total;
+        document.getElementById('totalSedes').textContent = data.sedes.activas;
+        
+        // Usuarios activos/inactivos
+        document.getElementById('usuariosActivos').textContent = data.usuarios.activos;
+        document.getElementById('usuariosInactivos').textContent = data.usuarios.inactivos;
+        
+        // Tabla usuarios por rol
+        const tablaRol = document.getElementById('tablaUsuariosRol');
+        if (data.usuarios.por_rol.length > 0) {
+            tablaRol.innerHTML = data.usuarios.por_rol.map(r => 
+                `<tr><td>${r.rol}</td><td>${r.total}</td></tr>`
+            ).join('');
+        } else {
+            tablaRol.innerHTML = '<tr><td colspan="2" style="text-align: center;">Sin datos</td></tr>';
+        }
+        
+        // Tabla encuentros por tipo
+        const tablaTipo = document.getElementById('tablaEncuentrosTipo');
+        if (data.encuentros.por_tipo.length > 0) {
+            tablaTipo.innerHTML = data.encuentros.por_tipo.map(t => 
+                `<tr><td>${t.tipo}</td><td>${t.total}</td></tr>`
+            ).join('');
+        } else {
+            tablaTipo.innerHTML = '<tr><td colspan="2" style="text-align: center;">Sin datos</td></tr>';
+        }
+        
+        // Tabla encuentros por sede
+        const tablaSede = document.getElementById('tablaEncuentrosSede');
+        if (data.encuentros.por_sede.length > 0) {
+            tablaSede.innerHTML = data.encuentros.por_sede.map(s => 
+                `<tr><td>${s.sede}</td><td>${s.total}</td></tr>`
+            ).join('');
+        } else {
+            tablaSede.innerHTML = '<tr><td colspan="2" style="text-align: center;">Sin datos</td></tr>';
+        }
+        
+        // FHIR
+        document.getElementById('pacientesFhir').textContent = data.fhir.pacientes_sincronizados;
+        document.getElementById('medicosFhir').textContent = data.fhir.medicos_sincronizados;
+        
+    } catch (error) {
+        console.error('Error:', error);
+    }
+    
+    document.getElementById('loading').style.display = 'none';
+}
+
+// Cargar al iniciar
+cargarEstadisticas();
+</script>
+{% endblock %}
