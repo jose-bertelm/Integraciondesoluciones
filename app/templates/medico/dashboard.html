@@ -1,30 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - Médico{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👨‍⚕️ Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-heart-pulse"></i> Dr(a). {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="text-primary"><i class="bi bi-stethoscope"></i> Panel Médico</h2>
+        <p class="text-muted">Gestione sus consultas y registre encuentros médicos</p>
+    </div>
     
-    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Panel Médico</h2>
-    <p style="color: #b0bec5;">Gestione sus consultas y registre encuentros médicos</p>
-    
-    <div class="dashboard-cards">
-        <a href="/medico/nuevo-encuentro" class="card">
-            <div class="card-icon">📋</div>
-            <h3>Nuevo Encuentro</h3>
-            <p>Registrar un nuevo encuentro médico con observaciones clínicas</p>
-        </a>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <a href="/medico/nuevo-encuentro" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-file-medical-fill display-3 text-success mb-3"></i>
+                        <h5 class="card-title">Nuevo Encuentro</h5>
+                        <p class="card-text text-muted">Registrar un nuevo encuentro médico con observaciones clínicas</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         
-        <a href="/medico/consultas" class="card">
-            <div class="card-icon">📁</div>
-            <h3>Mis Consultas</h3>
-            <p>Ver el historial de consultas realizadas</p>
-        </a>
+        <div class="col-md-6">
+            <a href="/medico/consultas" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-folder-fill display-3 text-primary mb-3"></i>
+                        <h5 class="card-title">Mis Consultas</h5>
+                        <p class="card-text text-muted">Ver el historial de consultas realizadas</p>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

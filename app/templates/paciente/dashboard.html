@@ -1,37 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - Paciente{% endblock %}
 {% block content %}
-<div class="container">
-    <nav class="navbar">
-        <div class="navbar-brand">🏥 Sistema Clínico</div>
-        <div class="navbar-user">
-            <span>👤 {{ user.nombres }} {{ user.apellidos }}</span>
-            <a href="/logout" class="btn btn-secondary">Cerrar Sesión</a>
+<nav class="navbar navbar-dark sticky-top">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="bi bi-hospital fs-4"></i> Sistema Clínico</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light"><i class="bi bi-person-circle"></i> {{ user.nombres }} {{ user.apellidos }}</span>
+            <a href="/logout" class="btn btn-secondary"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
-    </nav>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="text-primary"><i class="bi bi-person-heart"></i> Bienvenido(a), {{ user.nombres }}</h2>
+        <p class="text-muted">Consulte su historial médico</p>
+    </div>
     
-    <h2 style="color: #4fc3f7; margin-bottom: 10px;">Bienvenido(a), {{ user.nombres }}</h2>
-    <p style="color: #b0bec5;">Consulte su historial médico</p>
-    
-    <div class="dashboard-cards">
-        <a href="/paciente/historial" class="card">
-            <div class="card-icon">📋</div>
-            <h3>Mi Historial Médico</h3>
-            <p>Ver todas mis consultas, diagnósticos y observaciones clínicas</p>
-        </a>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <a href="/paciente/historial" class="text-decoration-none">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-clipboard2-pulse-fill display-3 text-primary mb-3"></i>
+                        <h5 class="card-title">Mi Historial Médico</h5>
+                        <p class="card-text text-muted">Ver todas mis consultas, diagnósticos y observaciones clínicas</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         
-        <a href="/pdf/mi-historia" class="card" target="_blank">
-            <div class="card-icon">📄</div>
-            <h3>Descargar Historia</h3>
-            <p>Exportar mi historia clínica en formato PDF</p>
-        </a>
+        <div class="col-md-6">
+            <a href="/pdf/mi-historia" class="text-decoration-none" target="_blank">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-pdf-fill display-3 text-danger mb-3"></i>
+                        <h5 class="card-title">Descargar Historia</h5>
+                        <p class="card-text text-muted">Exportar mi historia clínica en formato PDF</p>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
     
     {% if user.fhir_patient_id %}
-    <div style="margin-top: 30px; padding: 20px; background: rgba(79, 195, 247, 0.1); border-radius: 15px; border: 1px solid rgba(79, 195, 247, 0.3);">
-        <h4 style="color: #4fc3f7; margin-bottom: 10px;">🔗 Información FHIR</h4>
-        <p style="color: #b0bec5;">Su historia clínica está sincronizada con el estándar HL7 FHIR</p>
-        <p style="color: #b0bec5; font-size: 0.9rem;">FHIR Patient ID: <strong style="color: #4fc3f7;">{{ user.fhir_patient_id }}</strong></p>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title text-primary"><i class="bi bi-link-45deg"></i> Información FHIR</h5>
+            <p class="card-text text-muted">Su historia clínica está sincronizada con el estándar HL7 FHIR</p>
+            <p class="mb-0"><small class="text-muted">FHIR Patient ID: <strong class="text-primary">{{ user.fhir_patient_id }}</strong></small></p>
+        </div>
     </div>
     {% endif %}
 </div>
